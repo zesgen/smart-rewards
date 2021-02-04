@@ -71,5 +71,12 @@ contract FaucetV1 is IFaucet, Ownable {
     function setWhitelist(address account, bool whitelisted) public onlyOwner {
         whitelist[account] = whitelisted;
         emit Whitelist(account, whitelisted);
-    }    
+    } 
+
+    /**
+     * @dev Payable fallback
+     */    
+    receive() external payable 
+    {        
+    }   
 }
