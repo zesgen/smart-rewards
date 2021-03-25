@@ -60,7 +60,7 @@ contract FaucetV1 is IFaucet, Ownable {
         uint256 finalAmount = amount == 0 || amount > address(this).balance
             ? address(this).balance
             : amount;
-        to.transfer(finalAmount)
+        to.transfer(finalAmount);
     }
 
     /**
