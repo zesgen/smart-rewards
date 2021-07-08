@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.12;
+pragma solidity >=0.6.0 <0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
@@ -160,7 +160,7 @@ contract SpinMachineV1 is Initializable, Blacklistable, Rescuable, PausableUpgra
 
     function _freeSpin(address addr) private returns (bool success, uint256 winnings) {
         if(_hasFreeSpin(addr)) {
-            lastFreeSpin[addr] = now;
+            lastFreeSpin[addr] = block.timestamp;
             success = true;
             winnings = _winnings();
             uint256 sent = _send(addr, winnings);
@@ -182,7 +182,7 @@ contract SpinMachineV1 is Initializable, Blacklistable, Rescuable, PausableUpgra
     }
 
     function _hasFreeSpin(address addr) private view returns(bool) {
-        return lastFreeSpin[addr].add(freeSpinDelay) <= now;
+        return lastFreeSpin[addr].add(freeSpinDelay) <= block.timestamp;
     }
 
     function _randomIndex() private view returns(uint256) {
