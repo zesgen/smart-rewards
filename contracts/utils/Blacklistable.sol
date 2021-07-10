@@ -3,19 +3,18 @@
 pragma solidity >=0.6.0 <0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 
 /**
  * @title Blacklistable Token
  * @dev Allows accounts to be blacklisted by a "blacklister" role
  */
 contract Blacklistable is OwnableUpgradeable {
-    address public blacklister;
+    address private _blacklister;
     mapping(address => bool) internal blacklisted;
 
-    event Blacklisted(address indexed _account);
-    event UnBlacklisted(address indexed _account);
-    event SelfBlacklisted(address indexed _account);
+    event Blacklisted(address indexed account);
+    event UnBlacklisted(address indexed account);
+    event SelfBlacklisted(address indexed account);
     event BlacklisterChanged(address indexed newBlacklister);
 
     function __Blacklistable_init() internal initializer {
@@ -32,7 +31,7 @@ contract Blacklistable is OwnableUpgradeable {
      */
     modifier onlyBlacklister() {
         require(
-            msg.sender == blacklister,
+            msg.sender == _blacklister,
             "Blacklistable: caller is not the blacklister"
         );
         _;
@@ -40,49 +39,53 @@ contract Blacklistable is OwnableUpgradeable {
 
     /**
      * @dev Throws if argument account is blacklisted
-     * @param _account The address to check
+     * @param account The address to check
      */
-    modifier notBlacklisted(address _account) {
+    modifier notBlacklisted(address account) {
         require(
-            !blacklisted[_account],
+            !blacklisted[account],
             "Blacklistable: account is blacklisted"
         );
         _;
     }
 
+    function getBlacklister() external view returns (address) {
+        return _blacklister;
+    }
+
     /**
      * @dev Checks if account is blacklisted
-     * @param _account The address to check
+     * @param account The address to check
      */
-    function isBlacklisted(address _account) external view returns (bool) {
-        return blacklisted[_account];
+    function isBlacklisted(address account) external view returns (bool) {
+        return blacklisted[account];
     }
 
     /**
      * @dev Adds account to blacklist
-     * @param _account The address to blacklist
+     * @param account The address to blacklist
      */
-    function blacklist(address _account) external onlyBlacklister {
-        blacklisted[_account] = true;
-        emit Blacklisted(_account);
+    function blacklist(address account) external onlyBlacklister {
+        blacklisted[account] = true;
+        emit Blacklisted(account);
     }
 
     /**
      * @dev Removes account from blacklist
-     * @param _account The address to remove from the blacklist
+     * @param account The address to remove from the blacklist
      */
-    function unBlacklist(address _account) external onlyBlacklister {
-        blacklisted[_account] = false;
-        emit UnBlacklisted(_account);
+    function unBlacklist(address account) external onlyBlacklister {
+        blacklisted[account] = false;
+        emit UnBlacklisted(account);
     }
 
-    function updateBlacklister(address _newBlacklister) external onlyOwner {
+    function setBlacklister(address newBlacklister) external onlyOwner {
         require(
-            _newBlacklister != address(0),
+            newBlacklister != address(0),
             "Blacklistable: new blacklister is the zero address"
         );
-        blacklister = _newBlacklister;
-        emit BlacklisterChanged(blacklister);
+        _blacklister = newBlacklister;
+        emit BlacklisterChanged(_blacklister);
     }
 
     /**
