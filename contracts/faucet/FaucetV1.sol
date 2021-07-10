@@ -18,10 +18,16 @@ contract FaucetV1 is IFaucet, Ownable {
     event Whitelist(address indexed account, bool whitelisted);
     event Deposit(address indexed caller, uint256 amount);
 
+    function isFaucet() override external view returns(bool) {
+        // Shhh compiler warning..
+        whitelist[address(0)];
+        return true;
+    }
+
     /**
      * @dev Deposit
      */
-    function deposit() public payable {
+    function deposit() external payable {
         emit Deposit(msg.sender, msg.value);
     }
 
@@ -37,6 +43,8 @@ contract FaucetV1 is IFaucet, Ownable {
             to.transfer(amount);
             Withdraw(msg.sender, to, amount);
             return amount;
+        } else {
+            return 0;
         }
     }
 
@@ -45,7 +53,7 @@ contract FaucetV1 is IFaucet, Ownable {
      * Can only be called by the contract owner.
      * Emits an {Configure} event.
      */
-    function configure(uint256 minBalance, uint256 desiredBalance) public onlyOwner {
+    function configure(uint256 minBalance, uint256 desiredBalance) external onlyOwner {
         require(minBalance <= desiredBalance, "FaucetV1: minBalance <= desiredBalance");
         recipientMinBalance = minBalance;
         recipientDesiredBalance = desiredBalance;
@@ -56,7 +64,7 @@ contract FaucetV1 is IFaucet, Ownable {
      * @dev Allows to withdraw contract entire balance.
      * Can only be called by the contract owner.
      */
-    function withdrawAll(address payable to, uint256 amount) public onlyOwner {
+    function withdrawAll(address payable to, uint256 amount) external onlyOwner {
         uint256 finalAmount = amount == 0 || amount > address(this).balance
             ? address(this).balance
             : amount;
@@ -68,7 +76,7 @@ contract FaucetV1 is IFaucet, Ownable {
      * Can only be called by the contract owner.
      * Emits an {Whitelist} event.
      */
-    function setWhitelist(address account, bool whitelisted) public onlyOwner {
+    function setWhitelist(address account, bool whitelisted) external onlyOwner {
         whitelist[account] = whitelisted;
         emit Whitelist(account, whitelisted);
     }
