@@ -2,12 +2,11 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
 
-contract Rescuable is Initializable, OwnableUpgradeable {
+contract Rescuable is OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     address private _rescuer;
@@ -27,7 +26,7 @@ contract Rescuable is Initializable, OwnableUpgradeable {
      * @notice Returns current rescuer
      * @return Rescuer's address
      */
-    function rescuer() external view returns (address) {
+    function getRescuer() external view returns (address) {
         return _rescuer;
     }
 
@@ -57,11 +56,7 @@ contract Rescuable is Initializable, OwnableUpgradeable {
      * @notice Assign the rescuer role to a given address.
      * @param newRescuer New rescuer's address
      */
-    function updateRescuer(address newRescuer) external onlyOwner {
-        require(
-            newRescuer != address(0),
-            "Rescuable: new rescuer is the zero address"
-        );
+    function setRescuer(address newRescuer) external onlyOwner {
         _rescuer = newRescuer;
         emit RescuerChanged(newRescuer);
     }

@@ -2,11 +2,10 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../randomness/IRandomProvider.sol";
 
-contract Randomable is Initializable, OwnableUpgradeable {
+contract Randomable is OwnableUpgradeable {
     address private _randomProvider;
 
     event RandomProviderChanged(address indexed randomProvider);
@@ -36,13 +35,13 @@ contract Randomable is Initializable, OwnableUpgradeable {
         // Fail if `newRandomProvider` doesn't implement IRandomProvider interface.
         IRandomProvider(newRandomProvider).getRandomness();
         _randomProvider = newRandomProvider;
-        emit RandomProviderChanged(newRandomProvider);
+        emit RandomProviderChanged(_randomProvider);
     }
 
     /**
      * @dev Returns `randomProvider` address.
      */
-    function getRandomProvider() public view returns(address) {
+    function getRandomProvider() external view returns(address) {
         return _randomProvider;
     }
 }

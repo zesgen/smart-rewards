@@ -2,14 +2,11 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../faucet/IFaucet.sol";
 
 contract FaucetCaller is OwnableUpgradeable {
-    using AddressUpgradeable for address;
-
-    address public faucet;
+    address private _faucet;
 
     event FaucetChanged(address faucet);
 
@@ -26,17 +23,29 @@ contract FaucetCaller is OwnableUpgradeable {
      * @dev Requests faucet contract to renew `recipient` Ether balance.
      */
     function _faucetRequest(address recipient) internal {
-        if(faucet != address(0) && !recipient.isContract()) {
-            IFaucet(faucet).withdraw(payable(recipient));
+        if(_faucet != address(0)) {
+            IFaucet(_faucet).withdraw(payable(recipient));
         }
+    }
+
+    /**
+     * @dev Returns `faucet` address.
+     */
+    function getFaucet() external view returns (address) {
+        return _faucet;
     }
 
     /**
      * @dev Sets `faucet` address. Can only be called by the contract owner.
      * Emits an {FaucetChanged} event.
      */
-    function setFaucet(address newFaucet) public onlyOwner {
-        faucet = newFaucet;
-        emit FaucetChanged(newFaucet);
+    function setFaucet(address newFaucet) external onlyOwner {
+        if(newFaucet != address(0)) {
+            require(
+                IFaucet(newFaucet).isFaucet(),
+                "FaucetCaller: address isn't faucet");
+        }
+        _faucet = newFaucet;
+        emit FaucetChanged(_faucet);
     }
 }
