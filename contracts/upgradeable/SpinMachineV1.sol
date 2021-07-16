@@ -8,10 +8,10 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol";
-import "../utils/Blacklistable.sol";
-import "../utils/FaucetCaller.sol";
-import "../utils/Rescuable.sol";
-import "./ISpinMachine.sol";
+import "../interfaces/ISpinMachine.sol";
+import "./utils/Blacklistable.sol";
+import "./utils/FaucetCaller.sol";
+import "./utils/Rescuable.sol";
 
 contract SpinMachineV1 is Initializable, Blacklistable, Rescuable, PausableUpgradeable, FaucetCaller, ISpinMachine {
     using SafeERC20Upgradeable for IERC20Upgradeable;

@@ -2,7 +2,7 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "./IRandomProvider.sol";
+import "../../interfaces/IRandomProvider.sol";
 
 contract OutchainRandomProvider is IRandomProvider {
     uint256 _randomNumber;

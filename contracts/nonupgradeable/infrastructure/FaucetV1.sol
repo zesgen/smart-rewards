@@ -4,7 +4,7 @@ pragma solidity >=0.6.0 <0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "./IFaucet.sol";
+import "../../interfaces/IFaucet.sol";
 
 contract FaucetV1 is IFaucet, Ownable {
     using SafeMath for uint256;
