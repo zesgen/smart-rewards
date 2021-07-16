@@ -5,7 +5,7 @@ pragma solidity >=0.6.0 <0.8.0;
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { IFaucet } from "../../interfaces/IFaucet.sol";
 
-abstract contract FaucetCaller is OwnableUpgradeable {
+abstract contract FaucetCallerUpgradeable is OwnableUpgradeable {
     address private _faucet;
 
     event FaucetChanged(address faucet);

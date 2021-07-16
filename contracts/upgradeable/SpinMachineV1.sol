@@ -2,18 +2,17 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol";
-import "../interfaces/ISpinMachine.sol";
-import "./utils/Blacklistable.sol";
-import "./utils/FaucetCaller.sol";
-import "./utils/Rescuable.sol";
+import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import { SafeERC20Upgradeable } from  "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import { SafeMathUpgradeable } from  "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
+import { MathUpgradeable } from "@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol";
+import { BlacklistableUpgradeable } from "./utils/BlacklistableUpgradeable.sol";
+import { FaucetCallerUpgradeable } from "./utils/FaucetCallerUpgradeable.sol";
+import { PausableExUpgradeable } from "./utils/PausableExUpgradeable.sol";
+import { RescuableUpgradeable } from "./utils/RescuableUpgradeable.sol";
+import { ISpinMachine } from "../interfaces/ISpinMachine.sol";
 
-contract SpinMachineV1 is Initializable, Blacklistable, Rescuable, PausableUpgradeable, FaucetCaller, ISpinMachine {
+contract SpinMachineV1 is RescuableUpgradeable, PausableExUpgradeable, BlacklistableUpgradeable, FaucetCallerUpgradeable, ISpinMachine {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
 
@@ -38,10 +37,11 @@ contract SpinMachineV1 is Initializable, Blacklistable, Rescuable, PausableUpgra
     function __SpinMachineV1_init() internal initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
-        __Pausable_init_unchained();
         __Rescuable_init_unchained();
-        __FaucetCaller_init_unchained();
+        __Pausable_init_unchained();
+        __PausableEx_init_unchained();
         __Blacklistable_init_unchained();
+        __FaucetCaller_init_unchained();
         __SpinMachineV1_init_unchained();
     }
 

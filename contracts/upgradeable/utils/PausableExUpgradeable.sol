@@ -5,26 +5,26 @@ pragma solidity >=0.6.0 <0.8.0;
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
-abstract contract PausablePauser is OwnableUpgradeable, PausableUpgradeable {
+abstract contract PausableExUpgradeable is OwnableUpgradeable, PausableUpgradeable {
     address private _pauser;
 
     event PauserChanged(address indexed pauser);
 
-    function __PausablePauser_init() internal initializer {
+    function __PausableEx_init() internal initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
         __Pausable_init_unchained();
-        __PausablePauser_init_unchained();
+        __PausableEx_init_unchained();
     }
 
-    function __PausablePauser_init_unchained() internal initializer {
+    function __PausableEx_init_unchained() internal initializer {
     }
 
     /**
      * @dev Throws if called by any account other than the pauser.
      */
     modifier onlyPauser() {
-        require(getPauser() == _msgSender(), "PausablePauser: caller is not the pauser");
+        require(getPauser() == _msgSender(), "PausableEx: caller is not the pauser");
         _;
     }
 

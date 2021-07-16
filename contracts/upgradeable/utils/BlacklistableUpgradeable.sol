@@ -8,7 +8,7 @@ import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/O
  * @title Blacklistable Token
  * @dev Allows accounts to be blacklisted by a "blacklister" role
  */
-abstract contract Blacklistable is OwnableUpgradeable {
+abstract contract BlacklistableUpgradeable is OwnableUpgradeable {
     address private _blacklister;
     mapping(address => bool) private _blacklisted;
 

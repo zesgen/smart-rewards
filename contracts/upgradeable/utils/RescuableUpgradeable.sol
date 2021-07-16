@@ -6,7 +6,7 @@ import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/O
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
 
-abstract contract Rescuable is OwnableUpgradeable {
+abstract contract RescuableUpgradeable is OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     address private _rescuer;
