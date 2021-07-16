@@ -10,14 +10,13 @@ abstract contract RandomableUpgradeable is OwnableUpgradeable {
 
     event RandomProviderChanged(address indexed randomProvider);
 
-    function __Randomable_init(address randomProvider_) internal initializer {
+    function __Randomable_init() internal initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
-        __Randomable_init_unchained(randomProvider_);
+        __Randomable_init_unchained();
     }
 
-    function __Randomable_init_unchained(address randomProvider_) internal initializer {
-        setRandomProvider(randomProvider_);
+    function __Randomable_init_unchained() internal initializer {
     }
 
     /**
@@ -31,9 +30,7 @@ abstract contract RandomableUpgradeable is OwnableUpgradeable {
      * @dev Sets `randomProvider` address. Can only be called by the contract owner.
      * Emits an {RandomProviderChanged} event.
      */
-    function setRandomProvider(address newRandomProvider) public onlyOwner {
-        // Fail if `newRandomProvider` doesn't implement IRandomProvider interface.
-        IRandomProvider(newRandomProvider).getRandomness();
+    function setRandomProvider(address newRandomProvider) external onlyOwner {
         _randomProvider = newRandomProvider;
         emit RandomProviderChanged(_randomProvider);
     }

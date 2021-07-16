@@ -21,9 +21,7 @@ abstract contract Randomable is Ownable {
      * @dev Sets `randomProvider` address. Can only be called by the contract owner.
      * Emits an {RandomProviderChanged} event.
      */
-    function setRandomProvider(address newRandomProvider) public onlyOwner {
-        // Fail if `newRandomProvider` doesn't implement IRandomProvider interface.
-        IRandomProvider(newRandomProvider).getRandomness();
+    function setRandomProvider(address newRandomProvider) external onlyOwner {
         _randomProvider = newRandomProvider;
         emit RandomProviderChanged(_randomProvider);
     }
