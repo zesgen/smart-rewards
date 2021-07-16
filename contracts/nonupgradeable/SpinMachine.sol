@@ -2,19 +2,19 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import { SafeERC20Upgradeable } from  "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
-import { SafeMathUpgradeable } from  "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
-import { MathUpgradeable } from "@openzeppelin/contracts-upgradeable/math/MathUpgradeable.sol";
-import { BlacklistableUpgradeable } from "./utils/BlacklistableUpgradeable.sol";
-import { FaucetCallerUpgradeable } from "./utils/FaucetCallerUpgradeable.sol";
-import { PausableExUpgradeable } from "./utils/PausableExUpgradeable.sol";
-import { RescuableUpgradeable } from "./utils/RescuableUpgradeable.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from  "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import { SafeMath } from  "@openzeppelin/contracts/math/SafeMath.sol";
+import { Math } from "@openzeppelin/contracts/math/Math.sol";
+import { Blacklistable } from "./utils/Blacklistable.sol";
+import { FaucetCaller } from "./utils/FaucetCaller.sol";
+import { PausableEx } from "./utils/PausableEx.sol";
+import { Rescuable } from "./utils/Rescuable.sol";
 import { ISpinMachine } from "../interfaces/ISpinMachine.sol";
 
-contract SpinMachineV1 is RescuableUpgradeable, PausableExUpgradeable, BlacklistableUpgradeable, FaucetCallerUpgradeable, ISpinMachine {
-    using SafeERC20Upgradeable for IERC20Upgradeable;
-    using SafeMathUpgradeable for uint256;
+contract SpinMachine is Rescuable, PausableEx, Blacklistable, FaucetCaller, ISpinMachine {
+    using SafeERC20 for IERC20;
+    using SafeMath for uint256;
 
     address constant public token = 0x6275c7A100A6d16035DEa9930E18890bE42185A7;
     mapping(address => uint256) public lastFreeSpin;
@@ -30,22 +30,7 @@ contract SpinMachineV1 is RescuableUpgradeable, PausableExUpgradeable, Blacklist
     event ExtraSpinGranted(address indexed sender, address indexed spinOwner, uint256 count);
     event Spin(address indexed sender, uint256 winnings, uint256 sent, bool extra);
 
-    function initialize() public initializer {
-        __SpinMachineV1_init();
-    }
-
-    function __SpinMachineV1_init() internal initializer {
-        __Context_init_unchained();
-        __Ownable_init_unchained();
-        __Rescuable_init_unchained();
-        __Pausable_init_unchained();
-        __PausableEx_init_unchained();
-        __Blacklistable_init_unchained();
-        __FaucetCaller_init_unchained();
-        __SpinMachineV1_init_unchained();
-    }
-
-    function __SpinMachineV1_init_unchained() internal initializer {
+    constructor() {
         freeSpinDelay = 1 days;
         _prizes.push(0);
     }
@@ -82,7 +67,7 @@ contract SpinMachineV1 is RescuableUpgradeable, PausableExUpgradeable, Blacklist
     function buyExtraSpin(address spinOwner, uint256 count) public whenNotPaused {
         require(spinOwner != address(0), "SpinMachine: spinOwner is the zero address");
         require(count > 0, "SpinMachine: spins count must be greater than 0");
-        IERC20Upgradeable(token).safeTransferFrom(msg.sender, address(this), extraSpinPrice.mul(count));
+        IERC20(token).safeTransferFrom(msg.sender, address(this), extraSpinPrice.mul(count));
         extraSpins[spinOwner] = extraSpins[spinOwner].add(count);
         emit ExtraSpinPurchased(msg.sender, spinOwner, count);
     }
@@ -169,10 +154,10 @@ contract SpinMachineV1 is RescuableUpgradeable, PausableExUpgradeable, Blacklist
     }
 
     function _send(address to, uint256 winnings) private returns(uint256) {
-        uint256 balance = IERC20Upgradeable(token).balanceOf(address(this));
-        uint256 send = MathUpgradeable.min(winnings, balance);
+        uint256 balance = IERC20(token).balanceOf(address(this));
+        uint256 send = Math.min(winnings, balance);
         if(send > 0) {
-            IERC20Upgradeable(token).safeTransfer(to, send);
+            IERC20(token).safeTransfer(to, send);
         }
         return send;
     }
