@@ -10,9 +10,10 @@ import { Blacklistable } from "./utils/Blacklistable.sol";
 import { FaucetCaller } from "./utils/FaucetCaller.sol";
 import { PausableEx } from "./utils/PausableEx.sol";
 import { Rescuable } from "./utils/Rescuable.sol";
+import { Randomable } from "./utils/Randomable.sol";
 import { ISpinMachine } from "../interfaces/ISpinMachine.sol";
 
-contract SpinMachine is Rescuable, PausableEx, Blacklistable, FaucetCaller, ISpinMachine {
+contract SpinMachine is Rescuable, PausableEx, Blacklistable, FaucetCaller, Randomable, ISpinMachine {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
@@ -171,7 +172,7 @@ contract SpinMachine is Rescuable, PausableEx, Blacklistable, FaucetCaller, ISpi
     }
 
     function _randomIndex() private view returns(uint256) {
-         return uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender))) % _prizes.length;
+         return _getRandomness() % _prizes.length;
     }
 
     function _winnings() private view returns(uint256) {

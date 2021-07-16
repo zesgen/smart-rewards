@@ -10,9 +10,10 @@ import { BlacklistableUpgradeable } from "./utils/BlacklistableUpgradeable.sol";
 import { FaucetCallerUpgradeable } from "./utils/FaucetCallerUpgradeable.sol";
 import { PausableExUpgradeable } from "./utils/PausableExUpgradeable.sol";
 import { RescuableUpgradeable } from "./utils/RescuableUpgradeable.sol";
+import { RandomableUpgradeable } from "./utils/RandomableUpgradeable.sol";
 import { ISpinMachine } from "../interfaces/ISpinMachine.sol";
 
-contract SpinMachineUpgradeable is RescuableUpgradeable, PausableExUpgradeable, BlacklistableUpgradeable, FaucetCallerUpgradeable, ISpinMachine {
+contract SpinMachineUpgradeable is RescuableUpgradeable, PausableExUpgradeable, BlacklistableUpgradeable, FaucetCallerUpgradeable, RandomableUpgradeable, ISpinMachine {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
 
@@ -42,6 +43,7 @@ contract SpinMachineUpgradeable is RescuableUpgradeable, PausableExUpgradeable, 
         __PausableEx_init_unchained();
         __Blacklistable_init_unchained();
         __FaucetCaller_init_unchained();
+        __Randomable_init_unchained();
         __SpinMachineV1_init_unchained();
     }
 
@@ -186,7 +188,7 @@ contract SpinMachineUpgradeable is RescuableUpgradeable, PausableExUpgradeable, 
     }
 
     function _randomIndex() private view returns(uint256) {
-         return uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender))) % _prizes.length;
+         return _getRandomness() % _prizes.length;
     }
 
     function _winnings() private view returns(uint256) {
