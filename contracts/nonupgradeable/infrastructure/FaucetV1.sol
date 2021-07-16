@@ -2,9 +2,9 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "../../interfaces/IFaucet.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { IFaucet } from "../../interfaces/IFaucet.sol";
 
 contract FaucetV1 is IFaucet, Ownable {
     using SafeMath for uint256;
@@ -20,7 +20,7 @@ contract FaucetV1 is IFaucet, Ownable {
 
     function isFaucet() override external view returns(bool) {
         // Shhh compiler warning..
-        whitelist[address(0)];
+        recipientMinBalance;
         return true;
     }
 
