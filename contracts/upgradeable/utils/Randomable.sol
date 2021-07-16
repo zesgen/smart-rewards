@@ -2,10 +2,10 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "../../interfaces/IRandomProvider.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { IRandomProvider } from "../../interfaces/IRandomProvider.sol";
 
-contract Randomable is OwnableUpgradeable {
+abstract contract Randomable is OwnableUpgradeable {
     address private _randomProvider;
 
     event RandomProviderChanged(address indexed randomProvider);

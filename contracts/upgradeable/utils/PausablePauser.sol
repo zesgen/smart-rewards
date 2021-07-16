@@ -2,10 +2,10 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
-contract PausablePauser is OwnableUpgradeable, PausableUpgradeable {
+abstract contract PausablePauser is OwnableUpgradeable, PausableUpgradeable {
     address private _pauser;
 
     event PauserChanged(address indexed pauser);
@@ -24,8 +24,24 @@ contract PausablePauser is OwnableUpgradeable, PausableUpgradeable {
      * @dev Throws if called by any account other than the pauser.
      */
     modifier onlyPauser() {
-        require(_pauser == _msgSender(), "PausablePauser: caller is not the pauser");
+        require(getPauser() == _msgSender(), "PausablePauser: caller is not the pauser");
         _;
+    }
+
+    /**
+     * @dev Returns `pauser` address.
+     */
+    function getPauser() public view virtual returns(address) {
+        return _pauser;
+    }
+
+    /**
+     * @dev Sets `pauser` address. Can only be called by the contract owner.
+     * Emits an {PauserChanged} event.
+     */
+    function setPauser(address newPauser) external onlyOwner {
+        _pauser = newPauser;
+        emit PauserChanged(_pauser);
     }
 
     /**
@@ -44,21 +60,5 @@ contract PausablePauser is OwnableUpgradeable, PausableUpgradeable {
      */
     function unpause() external onlyPauser {
         _unpause();
-    }
-
-    /**
-     * @dev Sets `pauser` address. Can only be called by the contract owner.
-     * Emits an {PauserChanged} event.
-     */
-    function setPauser(address newPauser) external onlyOwner {
-        _pauser = newPauser;
-        emit PauserChanged(_pauser);
-    }
-
-    /**
-     * @dev Returns `pauser` address.
-     */
-    function getPauser() external view returns(address) {
-        return _pauser;
     }
 }

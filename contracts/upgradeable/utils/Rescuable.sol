@@ -2,11 +2,11 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
 
-contract Rescuable is OwnableUpgradeable {
+abstract contract Rescuable is OwnableUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     address private _rescuer;
@@ -23,33 +23,19 @@ contract Rescuable is OwnableUpgradeable {
     }
 
     /**
-     * @notice Returns current rescuer
-     * @return Rescuer's address
-     */
-    function getRescuer() external view returns (address) {
-        return _rescuer;
-    }
-
-    /**
      * @notice Revert if called by any account other than the rescuer.
      */
     modifier onlyRescuer() {
-        require(msg.sender == _rescuer, "Rescuable: caller is not the rescuer");
+        require(getRescuer() == _msgSender(), "Rescuable: caller is not the rescuer");
         _;
     }
 
     /**
-     * @notice Rescue ERC20 tokens locked up in this contract.
-     * @param tokenContract ERC20 token contract address
-     * @param to        Recipient address
-     * @param amount    Amount to withdraw
+     * @notice Returns current rescuer
+     * @return Rescuer's address
      */
-    function rescueERC20(
-        IERC20Upgradeable tokenContract,
-        address to,
-        uint256 amount
-    ) external onlyRescuer {
-        tokenContract.safeTransfer(to, amount);
+    function getRescuer() public view virtual returns (address) {
+        return _rescuer;
     }
 
     /**
@@ -59,5 +45,19 @@ contract Rescuable is OwnableUpgradeable {
     function setRescuer(address newRescuer) external onlyOwner {
         _rescuer = newRescuer;
         emit RescuerChanged(newRescuer);
+    }
+
+    /**
+     * @notice Rescue ERC20 tokens locked up in this contract.
+     * @param tokenContract ERC20 token contract address
+     * @param to Recipient address
+     * @param amount Amount to withdraw
+     */
+    function rescueERC20(
+        IERC20Upgradeable tokenContract,
+        address to,
+        uint256 amount
+    ) external onlyRescuer {
+        tokenContract.safeTransfer(to, amount);
     }
 }
