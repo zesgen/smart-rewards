@@ -135,10 +135,10 @@ contract SpinMachineV1 is RescuableUpgradeable, PausableExUpgradeable, Blacklist
     }
 
     /**
-     * @dev Returns true if `addr` can successfully execute a spin.
+     * @dev Returns true if `account` can successfully execute a spin.
      */
-    function canSpinFor(address addr)  override external view returns (bool) {
-        return _hasFreeSpin(addr) || _hasExtraSpin(addr);
+    function canSpinFor(address account)  override external view returns (bool) {
+        return _hasFreeSpin(account) || _hasExtraSpin(account);
     }
 
     /**
@@ -148,23 +148,23 @@ contract SpinMachineV1 is RescuableUpgradeable, PausableExUpgradeable, Blacklist
         return _hasFreeSpin(msg.sender) || _hasExtraSpin(msg.sender);
     }
 
-    function _extraSpin(address addr) private returns (bool success, uint256 winnings) {
-        if(_hasExtraSpin(addr)) {
-            extraSpins[addr] = extraSpins[addr].sub(1);
+    function _extraSpin(address account) private returns (bool success, uint256 winnings) {
+        if(_hasExtraSpin(account)) {
+            extraSpins[account] = extraSpins[account].sub(1);
             success = true;
             winnings = _winnings();
-            uint256 sent = _send(addr, winnings);
-            emit Spin(addr, winnings, sent, true);
+            uint256 sent = _send(account, winnings);
+            emit Spin(account, winnings, sent, true);
         }
     }
 
-    function _freeSpin(address addr) private returns (bool success, uint256 winnings) {
-        if(_hasFreeSpin(addr)) {
-            lastFreeSpin[addr] = block.timestamp;
+    function _freeSpin(address account) private returns (bool success, uint256 winnings) {
+        if(_hasFreeSpin(account)) {
+            lastFreeSpin[account] = block.timestamp;
             success = true;
             winnings = _winnings();
-            uint256 sent = _send(addr, winnings);
-            emit Spin(addr, winnings, sent, false);
+            uint256 sent = _send(account, winnings);
+            emit Spin(account, winnings, sent, false);
         }
     }
 
@@ -177,12 +177,12 @@ contract SpinMachineV1 is RescuableUpgradeable, PausableExUpgradeable, Blacklist
         return send;
     }
 
-    function _hasExtraSpin(address addr) private view returns(bool) {
-        return extraSpins[addr] > 0;
+    function _hasExtraSpin(address account) private view returns(bool) {
+        return extraSpins[account] > 0;
     }
 
-    function _hasFreeSpin(address addr) private view returns(bool) {
-        return lastFreeSpin[addr].add(freeSpinDelay) <= block.timestamp;
+    function _hasFreeSpin(address account) private view returns(bool) {
+        return lastFreeSpin[account].add(freeSpinDelay) <= block.timestamp;
     }
 
     function _randomIndex() private view returns(uint256) {
