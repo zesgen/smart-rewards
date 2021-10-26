@@ -82,6 +82,13 @@ contract Faucet is IFaucet, Ownable {
     }
 
     /**
+     * @dev Disable renounceOwnership functionality
+     */
+    function renounceOwnership() public virtual override onlyOwner {
+        revert("renounceOwnership disabled");
+    }
+
+    /**
      * @dev Payable fallback
      */
     receive() external payable
