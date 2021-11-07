@@ -214,6 +214,13 @@ describe("SpinMachine", async () => {
           .withArgs(deployer.address, other1.address, extraSpinsCount);
       });
     });
+
+    describe("Blacklistable", async () => {
+      it("Blacklister should be initially the deployer", async () => {
+        const actualBlacklister = await spinMachine.getBlacklister();
+        expect(actualBlacklister).to.equal(deployer.address)
+      });
+    })
   });
 
   describe("Interactions", async () => {
@@ -521,6 +528,151 @@ describe("SpinMachine", async () => {
             .withArgs(other1.address, prize, prize, true);
         });
       });
+    });
+
+    describe("Blacklisting scenarios", async () => {
+
+      beforeEach(async () => {
+        //The blacklister is initially the deployer
+        expect(await spinMachine.getBlacklister()).to.equal(deployer.address);
+      });
+
+      describe("Blacklister changing", async () => {
+
+        it("Executes successfully if the owner changes", async () => {
+          await expect(spinMachine.setBlacklister(other1.address)).to.be.not.reverted;
+          const newBlacklisterAddress = await spinMachine.getBlacklister();
+          expect(newBlacklisterAddress).equal(other1.address);
+        })
+
+        it("Reverts if not the owner changes", async () => {
+          await expect(spinMachine.connect(other1).setBlacklister(other1.address))
+            .to.be.revertedWith("Ownable: caller is not the owner");
+        })
+
+        it("Reverts if the new backlister's address is zero", async () => {
+          const zeroAddress = ethers.constants.AddressZero;
+          await expect(spinMachine.setBlacklister(zeroAddress)).to.be
+            .revertedWith("Blacklistable: new blacklister is the zero address");
+        })
+
+        it("Emits the `BlacklisterChanged` event ", async () => {
+          await expect(spinMachine.setBlacklister(other1.address))
+            .to.emit(spinMachine, 'BlacklisterChanged')
+            .withArgs(other1.address);
+        })
+      })
+
+      describe("Putting an address to the blacklist", async () => {
+
+        it("Executes successfully by the backlister", async () => {
+          await expect(spinMachine.blacklist(other1.address)).to.be.not.reverted;
+          const isOther1Blacklisted = await spinMachine.isBlacklisted(other1.address);
+          expect(isOther1Blacklisted).to.true
+        })
+
+        it("Reverts if not the backlister executes", async () => {
+          await expect(spinMachine.connect(other1).blacklist(other2.address))
+            .to.be.revertedWith("Blacklistable: caller is not the blacklister");
+        })
+
+        it("Emits the `Blacklisted` event ", async () => {
+          await expect(spinMachine.blacklist(other1.address))
+            .to.emit(spinMachine, 'Blacklisted')
+            .withArgs(other1.address)
+        })
+      })
+
+      describe("Removing an address from the blacklist", async () => {
+
+        beforeEach(async () => {
+          //other1 is initially in the blacklist
+          await expect(spinMachine.blacklist(other1.address)).to.be.not.reverted;
+        });
+
+        it("Executes successfully by the backlister", async () => {
+          let isOther1Blacklisted = await spinMachine.isBlacklisted(other1.address);
+          expect(isOther1Blacklisted).to.true
+          await expect(spinMachine.unBlacklist(other1.address)).to.be.not.reverted;
+          isOther1Blacklisted = await spinMachine.isBlacklisted(other1.address);
+          expect(isOther1Blacklisted).to.false
+        })
+
+        it("Reverts if not the backlister executes", async () => {
+          await expect(spinMachine.connect(other1).unBlacklist(other2.address))
+            .to.be.revertedWith("Blacklistable: caller is not the blacklister");
+        })
+
+        it("Emits the `UnBlacklisted` event ", async () => {
+          await expect(spinMachine.unBlacklist(other1.address))
+            .to.emit(spinMachine, 'UnBlacklisted')
+            .withArgs(other1.address)
+        })
+      })
+
+      describe("SelfBlacklisting", async () => {
+
+        it("Executes successfully by the owner", async () => {
+          let isCallerBlacklisted = await spinMachine.isBlacklisted(deployer.address);
+          expect(isCallerBlacklisted).to.false
+          await expect(spinMachine.selfBlacklist()).to.be.not.reverted;
+          isCallerBlacklisted = await spinMachine.isBlacklisted(deployer.address);
+          expect(isCallerBlacklisted).to.true
+        })
+
+        it("Executes successfully by not the owner", async () => {
+          let isCallerBlacklisted = await spinMachine.isBlacklisted(other1.address);
+          expect(isCallerBlacklisted).to.false
+          await expect(spinMachine.connect(other1).selfBlacklist()).to.be.not.reverted;
+          isCallerBlacklisted = await spinMachine.isBlacklisted(other1.address);
+          expect(isCallerBlacklisted).to.true
+        })
+
+        it("Emits the `UnBlacklisted` event ", async () => {
+          await expect(spinMachine.selfBlacklist())
+            .to.emit(spinMachine, 'SelfBlacklisted')
+            .withArgs(deployer.address)
+        })
+
+        it("Emits the `Blacklisted` event ", async () => {
+          await expect(spinMachine.selfBlacklist())
+            .to.emit(spinMachine, 'Blacklisted')
+            .withArgs(deployer.address)
+        })
+      })
+
+    });
+
+    describe("Blacklisted account spin scenarios", async () => {
+      // The default configuration of tokens
+      const tokenBalanceEnough: number = prize + 1;
+
+      beforeEach(async () => {
+        // The spin machine has 'enough' token balance
+        await brlcMock.mintTo(spinMachine.address, tokenBalanceEnough);
+        expect(await brlcMock.balanceOf(spinMachine.address)).to.equal(
+          tokenBalanceEnough
+        );
+        //other1 can spin
+        expect(await spinMachine.canFreeSpin(other1.address)).to.equal(true);
+        //other1 is initially blacklisted
+        await expect(spinMachine.blacklist(other1.address)).to.be.not.reverted;
+      });
+
+      it("Revert a spin if the account is blacklisted", async () => {
+        const isOther1Blacklisted = await spinMachine.isBlacklisted(other1.address);
+        expect(isOther1Blacklisted).to.true;
+        await expect(spinMachine.connect(other1).spin())
+          .to.be.revertedWith("Blacklistable: account is blacklisted")
+      })
+
+      it("Do not revert a spin if the blacklisted account has been unbacklisted",
+        async () => {
+          await expect(spinMachine.unBlacklist(other1.address)).to.be.not.reverted
+          const isOther1Blacklisted = await spinMachine.isBlacklisted(other1.address)
+          expect(isOther1Blacklisted).to.false
+          await expect(spinMachine.connect(other1).spin()).to.be.not.reverted
+      })
     });
   });
 });
