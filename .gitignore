@@ -8,3 +8,11 @@ artifacts
 #Optimism files
 cache-ovm
 artifacts-ovm
+
+#Coverage files
+coverage
+coverage.json
+
+#IDE specific files
+.idea
+
