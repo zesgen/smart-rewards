@@ -17,6 +17,10 @@ abstract contract Blacklistable is Ownable {
     event SelfBlacklisted(address indexed account);
     event BlacklisterChanged(address indexed newBlacklister);
 
+    constructor() {
+        _blacklister = _msgSender();
+    }
+
     /**
      * @dev Throws if called by any account other than the blacklister
      */
